@@ -13,4 +13,3 @@ htmlcov/
 .env
 
 .vscode/
-alembic_backup/
