@@ -3,9 +3,13 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class CategoryCreate(BaseModel):
+class CategoryBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=120)
     is_active: bool = True
+
+
+class CategoryCreate(CategoryBase):
+    pass
 
 
 class CategoryUpdate(BaseModel):
@@ -13,10 +17,8 @@ class CategoryUpdate(BaseModel):
     is_active: bool | None = None
 
 
-class CategoryRead(BaseModel):
+class CategoryRead(CategoryBase):
     id: int
-    name: str
-    is_active: bool
     created_at: datetime
     updated_at: datetime
 
