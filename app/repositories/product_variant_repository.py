@@ -1,9 +1,9 @@
-from app.db.session import Session
+from typing import cast
+
+from sqlalchemy.orm import Session
+
 from app.models.product_variant import ProductVariant
-from app.schemas.product_variant import (
-    ProductVariantCreate,
-    ProductVariantUpdate,
-)
+from app.schemas.product_variant import ProductVariantCreate, ProductVariantUpdate
 
 
 def create_product_variant(db: Session, data: ProductVariantCreate) -> ProductVariant:
@@ -54,52 +54,47 @@ def delete_product_variant(db: Session, product_variant: ProductVariant) -> None
 def get_product_variant_by_id(
     db: Session, product_variant_id: int
 ) -> ProductVariant | None:
-    return (
-        db.query(ProductVariant).filter(ProductVariant.id == product_variant_id).first()
-    )
+    query = db.query(ProductVariant).filter(ProductVariant.id == product_variant_id)
+    return cast(ProductVariant | None, query.first())
 
 
 def get_product_variants(
     db: Session, skip: int = 0, limit: int = 100
 ) -> list[ProductVariant]:
-    return db.query(ProductVariant).offset(skip).limit(limit).all()
+    return cast(
+        list[ProductVariant], db.query(ProductVariant).offset(skip).limit(limit).all()
+    )
 
 
 def get_product_variant_by_color_and_size(
     db: Session, product_id: int, color: str, size: str
 ) -> ProductVariant | None:
-    return (
-        db.query(ProductVariant)
-        .filter(
-            ProductVariant.product_id == product_id,
-            ProductVariant.color == color,
-            ProductVariant.size == size,
-        )
-        .first()
+    query = db.query(ProductVariant).filter(
+        ProductVariant.product_id == product_id,
+        ProductVariant.color == color,
+        ProductVariant.size == size,
     )
+    return cast(ProductVariant | None, query.first())
 
 
 def get_product_variants_by_product_id(
     db: Session, product_id: int, skip: int = 0, limit: int = 100
 ) -> list[ProductVariant]:
-    return (
+    query = (
         db.query(ProductVariant)
         .filter(ProductVariant.product_id == product_id)
         .offset(skip)
         .limit(limit)
-        .all()
     )
+    return cast(list[ProductVariant], query.all())
 
 
 def get_product_variants_by_color_and_size(
     db: Session, product_id: int, color: str, size: str
 ) -> list[ProductVariant]:
-    return (
-        db.query(ProductVariant)
-        .filter(
-            ProductVariant.product_id == product_id,
-            ProductVariant.color == color,
-            ProductVariant.size == size,
-        )
-        .all()
+    query = db.query(ProductVariant).filter(
+        ProductVariant.product_id == product_id,
+        ProductVariant.color == color,
+        ProductVariant.size == size,
     )
+    return cast(list[ProductVariant], query.all())

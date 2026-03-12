@@ -1,3 +1,5 @@
+from typing import cast
+
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
@@ -5,7 +7,13 @@ from app.schemas.product import ProductCreate, ProductUpdate
 
 
 def create_product(db: Session, data: ProductCreate) -> Product:
-    product = Product(name=data.name, price=data.price, category_id=data.category_id)
+    product = Product(
+        name=data.name,
+        base_price=data.base_price,
+        category_id=data.category_id,
+        description=data.description,
+        is_active=data.is_active,
+    )
     db.add(product)
     db.commit()
     db.refresh(product)
@@ -36,24 +44,26 @@ def delete_product(db: Session, product: Product) -> None:
 
 
 def get_product_by_id(db: Session, product_id: int) -> Product | None:
-    return db.query(Product).filter(Product.id == product_id).first()
+    return cast(
+        Product | None, db.query(Product).filter(Product.id == product_id).first()
+    )
 
 
 def get_products(db: Session, skip: int = 0, limit: int = 100) -> list[Product]:
-    return db.query(Product).offset(skip).limit(limit).all()
+    return cast(list[Product], db.query(Product).offset(skip).limit(limit).all())
 
 
 def get_products_by_category(
     db: Session, category_id: int, skip: int = 0, limit: int = 100
 ) -> list[Product]:
-    return (
+    query = (
         db.query(Product)
         .filter(Product.category_id == category_id)
         .offset(skip)
         .limit(limit)
-        .all()
     )
+    return cast(list[Product], query.all())
 
 
 def get_product_by_name(db: Session, name: str) -> Product | None:
-    return db.query(Product).filter(Product.name == name).first()
+    return cast(Product | None, db.query(Product).filter(Product.name == name).first())

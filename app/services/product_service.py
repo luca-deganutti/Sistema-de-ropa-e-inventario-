@@ -33,19 +33,19 @@ def delete_product_service(db: Session, product_id: int) -> None:
     if product is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product not Found",
+            detail="Product not found",
         )
+    product_repo.delete_product(db, product)
 
 
-def get_product_by_id_service(
-    db: Session, product_id: int, role: str
-) -> Product | None:
+def get_product_by_id_service(db: Session, product_id: int, role: str) -> Product:
     product = product_repo.get_product_by_id(db, product_id)
     if product is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="product not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found",
         )
-    if role != "admin" and not product.is_active:
+    if role.strip().lower() != "admin" and not product.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
@@ -54,26 +54,24 @@ def get_product_by_id_service(
 
 
 def get_products_service(
-    db: Session, product_id: int, role: str
-) -> list[Product] | None:
-    products: list[Product] = product_repo.get_products(db, product_id)
-    if role == "Admin":
+    db: Session, role: str, skip: int = 0, limit: int = 100
+) -> list[Product]:
+    products = product_repo.get_products(db, skip, limit)
+    if role.strip().lower() == "admin":
         return products
-
-    return [p for p in products if p.is_active]
+    return [product for product in products if product.is_active]
 
 
 def get_products_by_category_service(
-    db: Session, category_id: str, role: str
-) -> list[Product] | None:
-    products: list[Product] = product_repo.get_products_by_category(db, category_id)
-    if role == "Admin":
+    db: Session, category_id: int, role: str, skip: int = 0, limit: int = 100
+) -> list[Product]:
+    products = product_repo.get_products_by_category(db, category_id, skip, limit)
+    if role.strip().lower() == "admin":
         return products
+    return [product for product in products if product.is_active]
 
-    return [p for p in products if p.is_active]
 
-
-def get_product_by_name_service(db: Session, name: str, role: str) -> Product | None:
+def get_product_by_name_service(db: Session, name: str, role: str) -> Product:
     product = product_repo.get_product_by_name(db, name)
 
     if product is None:
@@ -81,7 +79,7 @@ def get_product_by_name_service(db: Session, name: str, role: str) -> Product | 
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
-    if role != "Admin" and not product.is_active:
+    if role.strip().lower() != "admin" and not product.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
