@@ -14,7 +14,7 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
-        exclude: ^alembic/env\.py$
+        exclude: ^alembic/
         additional_dependencies:
           - pydantic
           - pydantic-settings
